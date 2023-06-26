@@ -46,7 +46,8 @@ const SlotSelector: FC<Props> = ({
   const maxStartDate = moment(
     new Date(new Date().setDate(new Date().getDate() + 30))
   );
-  console.log(bookedSlots);
+  const time = new Date().toLocaleTimeString('en-GB');
+
   return (
     <Container {...styleProps}>
       <DayPickerSingleDateController
@@ -83,7 +84,10 @@ const SlotSelector: FC<Props> = ({
             />
           ) : availableSlots.length > 0 ? (
             availableSlots.map((slot) => {
-              const isBooked = bookedSlots.includes(slot.start + ':00');
+              const isBooked =
+                bookedSlots.includes(slot.start + ':00') ||
+                (slot.start < time &&
+                  new Date().getDate() === new Date(date).getDate());
               return (
                 <Button
                   key={slot.key}

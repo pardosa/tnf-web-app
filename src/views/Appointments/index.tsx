@@ -62,7 +62,6 @@ const Appointments = () => {
     appointments.doctorAppointments.map((app) => {
       times.push(new Date(app.startTime).toLocaleTimeString('en-GB'));
     });
-    console.log(times);
     setBookedSlots(times);
   };
 

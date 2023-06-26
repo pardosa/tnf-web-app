@@ -68,7 +68,6 @@ const BookAppoinment = (props: IProps) => {
           },
         },
       }).then((res) => {
-        console.log(res);
         modalHandler();
         props.onSubmitSuccess();
       });
