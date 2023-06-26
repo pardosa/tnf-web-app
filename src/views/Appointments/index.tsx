@@ -77,7 +77,7 @@ const Appointments = () => {
         value={selectedDoctor}
         onChange={setSelectedDoctor}
       />
-      {selectedDoctor && slots.length > 0 ? (
+      {selectedDoctor ? (
         <Box>
           <Heading fontSize='large' pb={2}>
             Available Slot for doctor <span>{selectedDoctor?.name}</span>

@@ -104,7 +104,7 @@ const SlotSelector: FC<Props> = ({
               );
             })
           ) : (
-            <></>
+            <span>Not Available</span>
           )}
         </Box>
       </Flex>
