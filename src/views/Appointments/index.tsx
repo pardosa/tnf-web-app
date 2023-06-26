@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Heading, Box, Text } from '@chakra-ui/react';
-import { addMinutes, addDays } from 'date-fns';
+import { Heading, Box, Text, useToast } from '@chakra-ui/react';
 
+import BookAppoinment from '@/components/BookAppointment';
 import DoctorSelector from '@/components/DoctorSelector';
 import SlotSelector from '@/components/SlotSelector';
 import {
   Doctor,
   DoctorAppointmentsQuery,
-  Slot,
   useDoctorAppointmentsQuery,
   useDoctorsQuery,
 } from '@/generated/core.graphql';
@@ -24,6 +23,7 @@ const Appointments = () => {
   const [selectedSlot, setSelectedSlot] = useState<SlotWithKey>();
   const [date, setDate] = useState<Date>(new Date());
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const toast = useToast();
 
   const generateSlots = useCallback(
     (doctor: Doctor, selectedDate: Date): SlotWithKey[] => {
@@ -145,6 +145,26 @@ const Appointments = () => {
         </Box>
       ) : (
         <Text>No slots available</Text>
+      )}
+      {selectedDoctor && selectedSlot ? (
+        <BookAppoinment
+          doctor={selectedDoctor}
+          date={date}
+          slot={selectedSlot}
+          onSubmitSuccess={() => {
+            setSelectedSlot(undefined);
+            setDate(new Date());
+            toast({
+              title: 'Appointment Booked.',
+              description: 'Please be present 30min before appointment',
+              status: 'success',
+              duration: 3000,
+              isClosable: true,
+            });
+          }}
+        />
+      ) : (
+        <></>
       )}
     </Box>
   );
