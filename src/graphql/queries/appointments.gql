@@ -1,0 +1,8 @@
+query doctorAppointments($slotInput: SlotInput!) {
+  doctorAppointments(slotInput: $slotInput) {
+    startTime
+    durationMinutes
+    patientname
+    description
+  }
+}

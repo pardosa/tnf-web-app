@@ -5,18 +5,25 @@ import { addMinutes, addDays } from 'date-fns';
 
 import DoctorSelector from '@/components/DoctorSelector';
 import SlotSelector from '@/components/SlotSelector';
-import { Doctor, Slot, useDoctorsQuery } from '@/generated/core.graphql';
+import {
+  Doctor,
+  DoctorAppointmentsQuery,
+  Slot,
+  useDoctorAppointmentsQuery,
+  useDoctorsQuery,
+} from '@/generated/core.graphql';
 import { SlotWithKey } from '@/types/domain';
 import { splitTime } from '@/utilities/time';
 
 const Appointments = () => {
-  const { data, loading } = useDoctorsQuery();
+  const { data: doctors, loading } = useDoctorsQuery();
   const [error, setError] = useState<string>();
   const [slots, setSlots] = useState<SlotWithKey[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor>();
   const [isLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<SlotWithKey>();
   const [date, setDate] = useState<Date>(new Date());
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
   const generateSlots = useCallback(
     (doctor: Doctor, selectedDate: Date): SlotWithKey[] => {
@@ -50,19 +57,60 @@ const Appointments = () => {
     []
   );
 
+  const generateBookedSlots = (appointments: DoctorAppointmentsQuery) => {
+    const times: string[] = [];
+    appointments.doctorAppointments.map((app) => {
+      times.push(new Date(app.startTime).toLocaleTimeString('en-GB'));
+    });
+    console.log(times);
+    setBookedSlots(times);
+  };
+
+  const {
+    loading: appointmentsLoading,
+    data: appointments,
+    refetch,
+  } = useDoctorAppointmentsQuery({
+    variables: {
+      slotInput: {
+        date: date,
+        doctorId: selectedDoctor ? selectedDoctor.id : 0,
+      },
+    },
+  });
+
   useEffect(() => {
     if (
       selectedDoctor &&
       selectedDoctor.availability &&
       selectedDoctor.availability?.length > 0 &&
-      date
+      date &&
+      !appointmentsLoading
     ) {
-      const slotData = generateSlots(selectedDoctor, date);
-      setSlots(slotData);
+      refetch().then((res) => {
+        if (
+          appointments?.doctorAppointments &&
+          appointments?.doctorAppointments.length > 0
+        ) {
+          generateBookedSlots(appointments);
+        } else {
+          setBookedSlots([]);
+        }
+
+        const slotData = generateSlots(selectedDoctor, date);
+        setSlots(slotData);
+      });
     } else {
       setSlots([]);
     }
-  }, [selectedDoctor, date, generateSlots]);
+  }, [
+    selectedDoctor,
+    date,
+    generateSlots,
+    refetch,
+    appointments,
+    appointmentsLoading,
+  ]);
 
   return (
     <Box>
@@ -73,7 +121,7 @@ const Appointments = () => {
         </Box>
       )}
       <DoctorSelector
-        doctors={data?.doctors as Doctor[]}
+        doctors={doctors?.doctors as Doctor[]}
         value={selectedDoctor}
         onChange={setSelectedDoctor}
       />
@@ -92,6 +140,7 @@ const Appointments = () => {
               setDate(dt);
               setSelectedSlot(undefined);
             }}
+            bookedSlots={bookedSlots}
           />
         </Box>
       ) : (

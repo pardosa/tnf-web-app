@@ -148,6 +148,13 @@ export type AddItemMutationVariables = Exact<{
 
 export type AddItemMutation = { __typename?: 'Mutation', addItem: { __typename?: 'Item', id: number, name: string, description?: string | null } };
 
+export type DoctorAppointmentsQueryVariables = Exact<{
+  slotInput: SlotInput;
+}>;
+
+
+export type DoctorAppointmentsQuery = { __typename?: 'Query', doctorAppointments: Array<{ __typename?: 'Appointment', startTime: any, durationMinutes: number, patientname: string, description?: string | null }> };
+
 export type DoctorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -194,6 +201,44 @@ export function useAddItemMutation(baseOptions?: Apollo.MutationHookOptions<AddI
 export type AddItemMutationHookResult = ReturnType<typeof useAddItemMutation>;
 export type AddItemMutationResult = Apollo.MutationResult<AddItemMutation>;
 export type AddItemMutationOptions = Apollo.BaseMutationOptions<AddItemMutation, AddItemMutationVariables>;
+export const DoctorAppointmentsDocument = gql`
+    query doctorAppointments($slotInput: SlotInput!) {
+  doctorAppointments(slotInput: $slotInput) {
+    startTime
+    durationMinutes
+    patientname
+    description
+  }
+}
+    `;
+
+/**
+ * __useDoctorAppointmentsQuery__
+ *
+ * To run a query within a React component, call `useDoctorAppointmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDoctorAppointmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDoctorAppointmentsQuery({
+ *   variables: {
+ *      slotInput: // value for 'slotInput'
+ *   },
+ * });
+ */
+export function useDoctorAppointmentsQuery(baseOptions: Apollo.QueryHookOptions<DoctorAppointmentsQuery, DoctorAppointmentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DoctorAppointmentsQuery, DoctorAppointmentsQueryVariables>(DoctorAppointmentsDocument, options);
+      }
+export function useDoctorAppointmentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DoctorAppointmentsQuery, DoctorAppointmentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DoctorAppointmentsQuery, DoctorAppointmentsQueryVariables>(DoctorAppointmentsDocument, options);
+        }
+export type DoctorAppointmentsQueryHookResult = ReturnType<typeof useDoctorAppointmentsQuery>;
+export type DoctorAppointmentsLazyQueryHookResult = ReturnType<typeof useDoctorAppointmentsLazyQuery>;
+export type DoctorAppointmentsQueryResult = Apollo.QueryResult<DoctorAppointmentsQuery, DoctorAppointmentsQueryVariables>;
 export const DoctorsDocument = gql`
     query doctors {
   doctors {

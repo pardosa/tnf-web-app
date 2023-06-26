@@ -21,6 +21,7 @@ type Props = {
   slotLoading?: Slot;
   loadingSlots: boolean;
   onDateSelected: (date: Date) => void;
+  bookedSlots: string[];
 };
 
 const SlotSelector: FC<Props> = ({
@@ -31,6 +32,7 @@ const SlotSelector: FC<Props> = ({
   onChange,
   styleProps,
   onDateSelected,
+  bookedSlots,
   ...props
 }) => {
   const onSlotSelected = useCallback(
@@ -44,7 +46,7 @@ const SlotSelector: FC<Props> = ({
   const maxStartDate = moment(
     new Date(new Date().setDate(new Date().getDate() + 30))
   );
-
+  console.log(bookedSlots);
   return (
     <Container {...styleProps}>
       <DayPickerSingleDateController
@@ -81,6 +83,7 @@ const SlotSelector: FC<Props> = ({
             />
           ) : availableSlots.length > 0 ? (
             availableSlots.map((slot) => {
+              const isBooked = bookedSlots.includes(slot.start + ':00');
               return (
                 <Button
                   key={slot.key}
@@ -88,13 +91,15 @@ const SlotSelector: FC<Props> = ({
                     backgroundColor: 'white.10',
                   }}
                   borderColor='white.10'
-                  colorScheme='teal'
+                  colorScheme={isBooked ? 'gray' : 'teal'}
                   fontSize='16px'
                   p={2}
                   mb={2}
-                  onClick={() => onSlotSelected(slot)}
+                  onClick={() => !isBooked && onSlotSelected(slot)}
                   variant={
-                    value && value.start === slot.start ? 'solid' : 'outline'
+                    (value && value.start === slot.start) || isBooked
+                      ? 'solid'
+                      : 'outline'
                   }
                   width='100%'
                   size={'sm'}
