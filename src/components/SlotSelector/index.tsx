@@ -1,12 +1,11 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback } from 'react';
 
-import { CheckIcon } from '@chakra-ui/icons';
-import { Flex, FlexProps, Text, Box, Button, Progress } from '@chakra-ui/react';
-import { isSameDay, format, isEqual } from 'date-fns';
+import { Flex, FlexProps, Text, Box, Button, Spinner } from '@chakra-ui/react';
+import { format } from 'date-fns';
 import moment from 'moment';
 import { DayPickerSingleDateController } from 'react-dates';
 
-import { Slot } from '@/types/domain';
+import { SlotWithKey as Slot } from '@/types/domain';
 
 import { Container } from './styled';
 
@@ -14,40 +13,37 @@ import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
 
 type Props = {
-  minimumStartDate: Date;
-  maximumStartDate: Date;
+  date: Date;
   availableSlots: Slot[];
   value?: Slot;
   onChange: (slot: Slot) => void;
   styleProps?: FlexProps;
   slotLoading?: Slot;
   loadingSlots: boolean;
-}
+  onDateSelected: (date: Date) => void;
+};
 
 const SlotSelector: FC<Props> = ({
-  minimumStartDate,
-  maximumStartDate,
+  date,
   availableSlots,
   loadingSlots,
   value,
   onChange,
   styleProps,
+  onDateSelected,
   ...props
 }) => {
-  const [date, setDate] = useState(
-    availableSlots?.[0]?.start || minimumStartDate,
+  const onSlotSelected = useCallback(
+    (slot: Slot) => {
+      onChange(slot);
+    },
+    [onChange]
   );
 
-  const onSlotSelected = useCallback((slot: Slot) => {
-    onChange(slot);
-  }, [onChange]);
-
-  const availableSlotsOnDate = useMemo(() => {
-    return availableSlots.filter((x) => isSameDay(x.start, date));
-  }, [date, availableSlots]);
-
-  const minStartDate = moment(minimumStartDate);
-  const maxStartDate = moment(maximumStartDate);
+  const minStartDate = moment(new Date());
+  const maxStartDate = moment(
+    new Date(new Date().setDate(new Date().getDate() + 30))
+  );
 
   return (
     <Container {...styleProps}>
@@ -65,46 +61,50 @@ const SlotSelector: FC<Props> = ({
         }}
         onDateChange={(d) => {
           if (d) {
-            setDate(d.toDate());
+            onDateSelected(d.toDate());
           }
         }}
         {...props}
       />
-      <Flex flexDirection="column" px="12px" w="100%">
-        <Text fontSize="17px" mb="20px" mt="22px" textAlign="left">
+      <Flex flexDirection='column' px='12px' w='100%' pb={2}>
+        <Text fontSize='17px' mb='20px' mt='22px' textAlign='left'>
           {format(date, 'eeee, MMMM dd')}
         </Text>
-        <Box flexGrow={1} overflow="auto" position="relative">
+        <Box flexGrow={1} overflow='auto' position='relative'>
           {loadingSlots ? (
-            <Progress />
-          ) : (
-            availableSlotsOnDate.map((slot) => {
-              const isActive = value && isEqual(value.start, slot?.start);
-              const activeStyle = isActive && {
-                backgroundColor: 'teal.500',
-                border: 'none',
-              };
+            <Spinner
+              thickness='4px'
+              speed='0.65s'
+              emptyColor='gray.200'
+              color='blue.500'
+              size='xl'
+            />
+          ) : availableSlots.length > 0 ? (
+            availableSlots.map((slot) => {
               return (
                 <Button
                   key={slot.key}
                   _hover={{
                     backgroundColor: 'white.10',
                   }}
-                  borderColor="white.10"
-                  colorScheme="gray"
-                  fontSize="16px"
-                  mb="8px"
+                  borderColor='white.10'
+                  colorScheme='teal'
+                  fontSize='16px'
+                  p={2}
+                  mb={2}
                   onClick={() => onSlotSelected(slot)}
-                  py="16px"
-                  variant="outline"
-                  width="100%"
-                  {...activeStyle}
+                  variant={
+                    value && value.start === slot.start ? 'solid' : 'outline'
+                  }
+                  width='100%'
+                  size={'sm'}
                 >
-                  {format(slot.start, 'hh:mm a')}{' '}
-                  {isActive && <CheckIcon position="absolute" right="18px" />}
+                  {slot.start + ' - ' + slot.end}
                 </Button>
               );
             })
+          ) : (
+            <></>
           )}
         </Box>
       </Flex>

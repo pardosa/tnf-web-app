@@ -9,6 +9,5 @@ export const Container = chakra(Flex, {
     alignItems: { xs: 'center', sm: 'initial' },
     boxShadow: '2xl',
     pb: 'md',
-    margin: '0 auto',
   },
 });

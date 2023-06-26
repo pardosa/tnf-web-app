@@ -1,5 +1,7 @@
 import { Slot } from '@/generated/core.graphql';
 
-type SlotWithKey = Slot & { 
+type SlotWithKey = Slot & {
   key: string;
-}
+};
+
+export { SlotWithKey };
