@@ -16,6 +16,13 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type AddAvailabilityInput = {
+  dayOfWeek: Scalars['Float'];
+  doctorId: Scalars['Float'];
+  endTimeUtc: Scalars['String'];
+  startTimeUtc: Scalars['String'];
+};
+
 export type AddDoctorInput = {
   name: Scalars['String'];
 };
@@ -27,19 +34,37 @@ export type AddItemInput = {
 
 export type Appointment = {
   __typename?: 'Appointment';
+  description?: Maybe<Scalars['String']>;
+  doctor: Doctor;
+  doctorId: Scalars['Int'];
   durationMinutes: Scalars['Float'];
   id: Scalars['Float'];
+  patientname: Scalars['String'];
   startTime: Scalars['DateTime'];
 };
 
+export type Availability = {
+  __typename?: 'Availability';
+  dayOfWeek: Scalars['Float'];
+  doctor: Doctor;
+  doctorId: Scalars['Int'];
+  endTimeUtc: Scalars['String'];
+  id: Scalars['Float'];
+  startTimeUtc: Scalars['String'];
+};
+
 export type BookAppointmentInput = {
+  date: Scalars['DateTime'];
   description: Scalars['String'];
   patientName: Scalars['String'];
-  slot: SlotInput;
+  slot: SlotArgs;
 };
 
 export type Doctor = {
   __typename?: 'Doctor';
+  appoinments: Array<Appointment>;
+  appointments?: Maybe<Array<Appointment>>;
+  availability?: Maybe<Array<Availability>>;
   id: Scalars['Float'];
   name: Scalars['String'];
 };
@@ -54,6 +79,7 @@ export type Item = {
 export type Mutation = {
   __typename?: 'Mutation';
   addDoctor: Doctor;
+  addDoctorAvailability: Availability;
   addItem: Item;
   bookAppointment: Appointment;
 };
@@ -61,6 +87,11 @@ export type Mutation = {
 
 export type MutationAddDoctorArgs = {
   doctor: AddDoctorInput;
+};
+
+
+export type MutationAddDoctorAvailabilityArgs = {
+  availability: AddAvailabilityInput;
 };
 
 
@@ -76,28 +107,38 @@ export type MutationBookAppointmentArgs = {
 export type Query = {
   __typename?: 'Query';
   appointments: Array<Appointment>;
+  doctorAppointments: Array<Appointment>;
   doctors: Array<Doctor>;
   items: Array<Item>;
   slots: Array<Slot>;
 };
 
 
+export type QueryDoctorAppointmentsArgs = {
+  slotInput: SlotInput;
+};
+
+
 export type QuerySlotsArgs = {
-  from: Scalars['DateTime'];
-  to: Scalars['DateTime'];
+  slotInput: SlotInput;
 };
 
 export type Slot = {
   __typename?: 'Slot';
   doctorId: Scalars['Float'];
-  end: Scalars['DateTime'];
-  start: Scalars['DateTime'];
+  end: Scalars['String'];
+  start: Scalars['String'];
+};
+
+export type SlotArgs = {
+  doctorId: Scalars['Float'];
+  end: Scalars['String'];
+  start: Scalars['String'];
 };
 
 export type SlotInput = {
+  date: Scalars['DateTime'];
   doctorId: Scalars['Float'];
-  end: Scalars['DateTime'];
-  start: Scalars['DateTime'];
 };
 
 export type AddItemMutationVariables = Exact<{
@@ -110,7 +151,7 @@ export type AddItemMutation = { __typename?: 'Mutation', addItem: { __typename?:
 export type DoctorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DoctorsQuery = { __typename?: 'Query', doctors: Array<{ __typename?: 'Doctor', id: number, name: string }> };
+export type DoctorsQuery = { __typename?: 'Query', doctors: Array<{ __typename?: 'Doctor', id: number, name: string, availability?: Array<{ __typename?: 'Availability', startTimeUtc: string, endTimeUtc: string, dayOfWeek: number }> | null }> };
 
 export type ItemsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -158,6 +199,11 @@ export const DoctorsDocument = gql`
   doctors {
     id
     name
+    availability {
+      startTimeUtc
+      endTimeUtc
+      dayOfWeek
+    }
   }
 }
     `;
