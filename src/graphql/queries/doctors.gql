@@ -2,5 +2,10 @@ query doctors {
   doctors {
     id
     name
+    availability {
+      startTimeUtc
+      endTimeUtc
+      dayOfWeek
+    }
   }
 }
